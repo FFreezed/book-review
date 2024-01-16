@@ -12,11 +12,12 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        $title = $request->input("title");
+        $title = $request->input('title');
 
         $books = Book::when(
             $title, 
-            fn ($query, $title) => $query->title($title) //Arrow Function
+            fn ($query, $title) => $query->title($title) //Arrow Function, If there is a title, filter the books to show only those with the same title
+
         )
             ->get();
 
