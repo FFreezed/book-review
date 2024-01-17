@@ -18,7 +18,6 @@ class BookController extends Controller
         $books = Book::when(
             $title, 
             fn ($query, $title) => $query->title($title) //Arrow Function, If there is a title, filter the books to show only those with the same title
-            
         );
 
         $books = match ($filter) {
@@ -29,7 +28,9 @@ class BookController extends Controller
             default => $books->latest()
         };
 
-        $books = $books->get();
+        // $books = $books->get();
+        $cacheKey = 'books'. $title . ':'. $title;
+        $books = cache()->remember($cacheKey, 3600, fn() => $books->get());
         
         return view("books.index", ["books" => $books]);
     }
@@ -53,9 +54,18 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    // public function show(string $id)
+
+    public function show(Book $book)
     {
-        //
+        return view(
+            'books.show', 
+            [
+                'book' => $book->load([
+                    'reviews' => fn ($query) => $query->latest()
+                ])
+            ]
+        );
     }
 
     /**
